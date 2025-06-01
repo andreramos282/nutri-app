@@ -1,78 +1,172 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { useColorScheme } from 'react-native';
 import { DarkColors, LightColors } from '../../constants/Colors';
-interface Product {
-  id?: string;
-  _id?: string;
-  product_name: string;
-  nutriments?: {
-    [key: string]: any;
-    'energy-kcal_100g'?: number;
-    carbohydrates_100g?: number;
-    proteins_100g?: number;
-    fat_100g?: number;
-  };
-}
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useDiary } from '../../context/DiaryContext';
+
+type Food = { nome: string; id: string };
+
+const ALIMENTOS: Food[] = [
+  { id: '1', nome: 'Arroz' },
+  { id: '2', nome: 'Feijão' },
+  { id: '3', nome: 'Batata' },
+  { id: '4', nome: 'Frango' },
+];
 
 export default function FoodSearchScreen() {
   const colorScheme = useColorScheme();
   const colors = colorScheme === 'dark' ? DarkColors : LightColors;
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState<Food | null>(null);
+  const [quantidade, setQuantidade] = useState('');
+  const [refeicao, setRefeicao] = useState('');
+  const [horario, setHorario] = useState('');
+  const { addEntry } = useDiary();
 
-  const searchFood = async (text: string) => {
-    setQuery(text);
-    if (text.length < 3) {
-      setResults([]);
-      return;
+  const alimentosFiltrados = search.length > 0
+    ? ALIMENTOS.filter(a => a.nome.toLowerCase().includes(search.toLowerCase()))
+    : ALIMENTOS;
+
+  function handleSelect(item: Food) {
+    setSelected(item);
+  }
+
+  function handleAdd() {
+    if (selected && quantidade && refeicao && horario) {
+      addEntry({
+        alimento: selected.nome,
+        quantidade,
+        refeicao,
+        horario,
+      });
+      setSelected(null);
+      setQuantidade('');
+      setRefeicao('');
+      setHorario('');
+      setSearch('');
     }
-    setLoading(true);
-    try {
-      const res = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(text)}&search_simple=1&action=process&json=1&page_size=10`);
-      const data = await res.json();
-      setResults(data.products || []);
-    } catch {
-      setResults([]);
-    }
-    setLoading(false);
-  };
+  }
+
+  if (selected) {
+    return (
+      <KeyboardAvoidingView
+        style={[styles.flex, { backgroundColor: colors.background, padding: 20 }]}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <View style={[styles.card, { backgroundColor: colors.itemBg, borderColor: colors.border }]}>
+          <Text style={[styles.foodTitle, { color: colors.text }]}>{selected.nome}</Text>
+          <TextInput
+            placeholder="Quantidade (ex: 100g)"
+            value={quantidade}
+            onChangeText={setQuantidade}
+            style={[styles.input, { borderColor: colors.border, color: colors.text, backgroundColor: colors.inputBg }]}
+            placeholderTextColor={colors.text + '99'}
+            keyboardType="numeric"
+          />
+          <TextInput
+            placeholder="Refeição (ex: Almoço)"
+            value={refeicao}
+            onChangeText={setRefeicao}
+            style={[styles.input, { borderColor: colors.border, color: colors.text, backgroundColor: colors.inputBg }]}
+            placeholderTextColor={colors.text + '99'}
+          />
+          <TextInput
+            placeholder="Horário (ex: 12:00)"
+            value={horario}
+            onChangeText={setHorario}
+            style={[styles.input, { borderColor: colors.border, color: colors.text, backgroundColor: colors.inputBg }]}
+            placeholderTextColor={colors.text + '99'}
+          />
+          <TouchableOpacity style={[styles.button, { backgroundColor: colors.tabBar }]} onPress={handleAdd}>
+            <MaterialCommunityIcons name="plus" color={colors.text} size={22} />
+            <Text style={[styles.buttonText, { color: colors.text }]}>Adicionar ao Diário</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setSelected(null)} style={styles.cancelButton}>
+            <Text style={{ color: colors.text + '99' }}>Cancelar</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    );
+  }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.flex, { backgroundColor: colors.background, padding: 20 }]}>
       <TextInput
-        placeholder="Digite o alimento..."
-        value={query}
-        onChangeText={searchFood}
-        style={[styles.input, { backgroundColor: colors.inputBg, color: colors.text, borderColor: colors.border }]}
+        placeholder="Buscar alimento..."
+        value={search}
+        onChangeText={setSearch}
+        style={[styles.input, { borderColor: colors.border, color: colors.text, backgroundColor: colors.inputBg }]}
         placeholderTextColor={colors.text + '99'}
       />
-      {loading && <ActivityIndicator color={colors.text} />}
       <FlatList
-        data={results}
-        keyExtractor={(item) => (item.id || item._id || Math.random().toString())}
+        data={alimentosFiltrados}
+        keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <TouchableOpacity style={[styles.item, { backgroundColor: colors.itemBg, borderColor: colors.border }]}>
-            <Text style={{ color: colors.text }}>{item.product_name}</Text>
-            <Text style={[styles.nutrition, { color: colors.text + '99' }]}>
-              {item.nutriments &&
-                `Kcal: ${item.nutriments['energy-kcal_100g'] ?? '-'} | Carbs: ${item.nutriments.carbohydrates_100g ?? '-'}g | Prot: ${item.nutriments.proteins_100g ?? '-'}g | Gord: ${item.nutriments.fat_100g ?? '-'}g`}
-            </Text>
+          <TouchableOpacity
+            onPress={() => handleSelect(item)}
+            style={[styles.card, { backgroundColor: colors.itemBg, borderColor: colors.border }]}
+            activeOpacity={0.8}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <MaterialCommunityIcons name="food-apple" color={colors.text} size={26} style={{ marginRight: 10 }} />
+              <Text style={[styles.foodTitle, { color: colors.text }]}>{item.nome}</Text>
+            </View>
           </TouchableOpacity>
         )}
+        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
         ListEmptyComponent={
-          !loading && query.length >= 3 ? (
-            <Text style={{ color: colors.text + '99', textAlign: 'center', marginTop: 16 }}>Nenhum resultado.</Text>
-          ) : null
+          <Text style={{ color: colors.text + '99', textAlign: 'center', marginTop: 16 }}>Nenhum alimento encontrado.</Text>
         }
+        contentContainerStyle={{ paddingTop: 10 }}
       />
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: { padding: 16, flex: 1 },
-  input: { borderWidth: 1, marginBottom: 8, padding: 8, borderRadius: 4, fontSize: 16 },
-  item: { padding: 12, borderBottomWidth: 1 },
-  nutrition: { fontSize: 12, marginTop: 2 }
+  flex: { flex: 1 },
+  card: {
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 16,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    marginBottom: 10,
+  },
+  foodTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    flex: 1,
+  },
+  input: {
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+    fontSize: 16,
+    marginBottom: 12,
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 8,
+    marginTop: 10,
+    gap: 6,
+    elevation: 1,
+  },
+  buttonText: {
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  cancelButton: {
+    alignSelf: 'center',
+    marginTop: 12,
+  },
 });
