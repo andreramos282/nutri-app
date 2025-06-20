@@ -1,50 +1,30 @@
-# Welcome to your Expo app 👋
+# Nutri App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Este repositório contém o protótipo do **Nutri App**, um aplicativo de nutrição criado como um experimento pessoal. A ideia surgiu da vontade de ter uma ferramenta simples, prática e acessível para acompanhar a dieta e a evolução de peso no dia a dia, sem complicações.
 
-## Get started
+## Objetivo
 
-1. Install dependencies
+O objetivo do Nutri App é oferecer uma experiência fácil e direta para quem deseja monitorar sua alimentação e progresso de peso. Nada de interfaces complexas ou recursos desnecessários: aqui, o foco é facilitar o acompanhamento da sua jornada de forma leve e descomplicada.
 
-   ```bash
-   npm install
-   ```
+## Linguagens e Tecnologias Utilizadas
 
-2. Start the app
+- **JavaScript/TypeScript**: base para lógica de aplicação e componentes interativos
+- **React Native**: desenvolvimento do app mobile, garantindo compatibilidade com Android e iOS
+- **Expo**: facilitação do desenvolvimento, testes e deploy do app
+- **CSS-in-JS / Styled Components**: estilização dos componentes de forma moderna e flexível
 
-   ```bash
-   npx expo start
-   ```
+## Status
 
-In the output, you'll find options to open the app in a
+Este projeto ainda está em fase de protótipo e serve principalmente como experimento para testar ideias e aprender mais sobre desenvolvimento mobile e boas práticas em apps de nutrição.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Como rodar
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+1. Clone o repositório
+2. Instale as dependências (`npm install` ou `yarn`)
+3. Execute o projeto com `expo start`
 
-## Get a fresh project
+Fique à vontade para explorar, sugerir melhorias ou contribuir!
 
-When you're ready, run:
+---
 
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Feito com curiosidade, por [andreramos282](https://github.com/andreramos282) 🚀
